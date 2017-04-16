@@ -1,0 +1,24 @@
+{
+  "name": "typescriptfolder",
+  "version": "1.0.0",
+  "description": "Typescript Folder with a lot of scripts",
+  "main": "teste.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lcrespilho/Typescript.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lcrespilho/Typescript/issues"
+  },
+  "homepage": "https://github.com/lcrespilho/Typescript#readme",
+  "devDependencies": {
+    "npm-run": "^4.1.2",
+    "tslint": "^5.1.0",
+    "typescript": "^2.2.2"
+  }
+}
