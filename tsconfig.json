@@ -1,12 +1,16 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es3",
-        "sourceMap": true,
-        "noImplicitAny": true,
-        "noImplicitReturns": true,
-        "noImplicitThis": true,
-        "strictNullChecks": true,
-        "watch": true
-    }
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es3",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "watch": true,
+    "outDir": "build"
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

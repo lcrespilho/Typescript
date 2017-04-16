@@ -18,7 +18,6 @@
   "homepage": "https://github.com/lcrespilho/Typescript#readme",
   "devDependencies": {
     "eslint": "^3.19.0",
-    "npm-run": "^4.1.2",
     "tslint": "^5.1.0",
     "typescript": "^2.2.2"
   }

@@ -1,16 +1,16 @@
 {
-	"rules": {
-		"no-unused-variable": true,
-		"no-unused-new": true,
-		"no-unused-expression": true,
-		"no-duplicate-variable": true,
-		"curly": true,
-		"class-name": true,
-		"triple-equals": true,
-		"no-duplicate-key": true,
-		"semicolon": [
-			true,
-			"always"
-		]
-	}
+  "rules": {
+    "no-unused-variable": true,
+    "no-unused-new": true,
+    "no-unused-expression": true,
+    "no-duplicate-variable": true,
+    "curly": true,
+    "class-name": true,
+    "triple-equals": true,
+    "no-duplicate-key": true,
+    "semicolon": [
+      true,
+      "always"
+    ]
+  }
 }
