@@ -126,7 +126,7 @@ interface EventlistenerOptions {
   passive?: boolean;
 }
 
-interface HTMLElement {
+interface EventTarget {
   /**
    * Register the specified listener on the EventTarget it's called on. The event target
    * may be an Element in a document, the Document itself, a Window, or any other object
@@ -140,19 +140,13 @@ interface HTMLElement {
   [key: string]: any;
 }
 
-interface Window extends HTMLElement {
-  addEventListener(type: string, listener?: EventListenerOrEventListenerObject, options?: EventlistenerOptions): void;
-  attachEvent(eventNameWithOn: string, callback: EventListener): void;
-  [key: string]: any;
-}
-
 /**
  * Cross-browser compliant event listener.
  * @param target Elemento alvo. É onde o listener de evento será inserido.
  * @param evt Evento para o qual o listener será adicionado.
  * @param fn Função handler/listener que será executada na ocorrência do evento.
  */
-function addEvent(target: HTMLElement | Window, evt: string, fn: EventListener): void {
+function addEvent(target: EventTarget, evt: string, fn: EventListener): void {
   if (target.addEventListener) { // new browsers
     try {
       target.addEventListener(evt, fn, {
