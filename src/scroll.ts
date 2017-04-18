@@ -175,24 +175,113 @@ function addEvent(target: HTMLElement | Window, evt: string, fn: EventListener):
   }
 }
 
-// function getMarks(_docHeight: number, _offset: number) {
-// }
+interface Config {
 
-// function addMarks_(marks, points, symbol, _docHeight, _offset) {
-// }
-
-// throttle function borrowed from http://underscorejs.org  v1.5.2
-// function throttle(func, wait) {
-// }
-
-
-
-interface Window {
-  [propName: string]: any;
 }
 
-function checkDepth() {
 
+/**
+ * TODO: corrigir/checar
+ * @param config 
+ * @param _docHeight 
+ * @param _offset 
+ */
+function getMarks(config: any, _docHeight: number, _offset: number) {
+  var marks = {};
+  var percents = [];
+  var pixels = [];
+  if (config.distances.percentages) {
+    if (config.distances.percentages.each) {
+      percents = percents.concat(config.distances.percentages.each);
+    }
+    if (config.distances.percentages.every) {
+      var _every = every_(config.distances.percentages.every, 100);
+      percents = percents.concat(_every);
+    }
+  }
+  if (config.distances.pixels) {
+    if (config.distances.pixels.each) {
+      pixels = pixels.concat(config.distances.pixels.each);
+    }
+    if (config.distances.pixels.every) {
+      var _every = every_(config.distances.pixels.every, _docHeight);
+      pixels = pixels.concat(_every);
+    }
+  }
+  marks = addMarks_(marks, percents, '%', _docHeight, _offset);
+  marks = addMarks_(marks, pixels, 'px', _docHeight, _offset);
+  return marks;
+}
+
+/**
+ * TODO: corrigir/checar
+ * @param marks 
+ * @param points 
+ * @param symbol 
+ * @param _docHeight 
+ * @param _offset 
+ */
+function addMarks_(marks, points, symbol, _docHeight, _offset) {
+  var i;
+  for (i = 0; i < points.length; i++) {
+    var _point = parseInt(points[i], 10);
+    var height = symbol !== '%' ? _point + _offset : _docHeight *
+      (_point / 100) + _offset;
+    var mark = _point + symbol;
+    if (height <= _docHeight + _offset) { marks[mark] = height; }
+  }
+  return marks;
+}
+
+/**
+ * TODO: corrigir/checar
+ * throttle function borrowed from http://underscorejs.org  v1.5.2
+ * @param func 
+ * @param wait 
+ */
+function throttle(func, wait) {
+  var context, args, result;
+  var timeout = null;
+  var previous = 0;
+  var later = function () {
+    previous = new Date;
+    timeout = null;
+    result = func.apply(context, args);
+  };
+  return function () {
+    var now = new Date;
+    if (!previous) previous = now;
+    var remaining = wait - (now - previous);
+    context = this;
+    args = arguments;
+    if (remaining <= 0) {
+      clearTimeout(timeout);
+      timeout = null;
+      previous = now;
+      result = func.apply(context, args);
+    } else if (!timeout) {
+      timeout = setTimeout(later, remaining);
+    }
+    return result;
+  };
+}
+
+/**
+ * TODO: corrigir/checar
+ * @param config 
+ */
+function checkDepth(config: any) {
+  var _bottom = parseBorder_(config.bottom);
+  var _top = parseBorder_(config.top);
+  var height = docHeight(_bottom, _top);
+  var marks = getMarks(config, height, (_top || 0));
+  var _curr = currentPosition();
+  for (key in marks) {
+    if (_curr > marks[key] && !cache[key]) {
+      cache[key] = true;
+      fireAnalyticsEvent(key);
+    }
+  }
 }
 
 /**
@@ -213,7 +302,7 @@ function run(document: Document, window: Window, config: any): void {
 
   config.distances = config.distances || {}; // initialize distances, for later
 
-  checkDepth();
+  checkDepth(config);
   // addEvent(window, 'scroll', throttle(checkDepth, 500));
 }
 
@@ -232,10 +321,3 @@ run(document, window, {
   top: undefined, // accepts a number, DOM element, or query selector to determine the top of the scrolling area
   bottom: undefined // accepts a number, DOM element, or query selector to determine the bottom of the scrolling area
 });
-
-
-interface Config {
-  datalayerName: string | boolean;
-
-}
-

@@ -1,31 +1,13 @@
-interface ClockContructor {
-  new (hour: number, minute: number): ClockInterface;
-}
+let x = () => ({ name: "Alice" });
+let y = () => ({ name: "Alice", location: "Seattle" });
 
-interface ClockInterface {
-  tick(): void;
-}
+x = y;
+y = x;
 
-function createClock(ctor: ClockContructor, hour: number, minute: number): ClockInterface {
-  return new ctor(hour, minute);
-}
 
-class DigitalClock implements ClockInterface {
-  constructor(h: number, m: number) { }
-  tick() {
-    console.log('beep beep');
-  }
-}
+let xx = { name: "Alice" };
+let yy = { name: "Alice", location: "Seattle" };
 
-class AnalogClock implements ClockInterface {
-  constructor(h: number, m: number) { }
-  tick() {
-    console.log('tick tock');
-  }
-}
+xx = yy;
+yy = xx;
 
-let digital = createClock(DigitalClock, 12, 17);
-let analog = createClock(AnalogClock, 7, 32);
-
-digital.tick();
-analog.tick();
