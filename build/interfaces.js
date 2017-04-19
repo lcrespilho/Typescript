@@ -1,9 +1,1 @@
-var x = function () { return ({ name: "Alice" }); };
-var y = function () { return ({ name: "Alice", location: "Seattle" }); };
-x = y;
-y = x;
-var xx = { name: "Alice" };
-var yy = { name: "Alice", location: "Seattle" };
-xx = yy;
-yy = xx;
 //# sourceMappingURL=interfaces.js.map
