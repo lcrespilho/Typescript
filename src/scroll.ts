@@ -70,12 +70,12 @@ function addEvent(target: EventTarget, evt: string, fn: EventListener): void {
     }
   } else if (target.attachEvent) {
     target.attachEvent('on' + evt, function (evt_) {
-      // call the event to ensure uniform 'this' handling; pass it event
+      // 'call' the event to ensure uniform 'this' handling
       fn.call(target, evt_);
     });
   } else if (!target['on' + evt]) {
     target['on' + evt] = function handler(evt_: Event) {
-      // call the event to ensure uniform 'this' handling
+      // 'call' the event to ensure uniform 'this' handling
       fn.call(target, evt_);
     };
   }
