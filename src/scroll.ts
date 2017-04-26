@@ -1,3 +1,5 @@
+/// <reference path="utils.ts" />
+
 declare let dataLayer: any[];
 
 /**
@@ -18,8 +20,7 @@ function isCSS1Compat(): boolean {
 }
 
 /**
- * Posição do 'bottom' da página em relação ao 'top',
- * contando scroll + altura do viewport
+ * Posição do 'bottom' (variável) da página em relação ao 'top' (fixo).
  */
 function currentPosition(): number {
   let currScrollTop = window.pageYOffset || (isCSS1Compat()) ?
@@ -58,35 +59,28 @@ let config: Scroll.Config = {
 };
 
 /**
- * TODO: corrigir/checar
- * throttle function borrowed from http://underscorejs.org  v1.5.2
- * @param func 
- * @param wait 
+ * Limita a frequência de execução de "func", executando-a
+ * em intervalos de "wait" segundos.
+ * @param func Função a ser executada
+ * @param wait período de execução de func
  */
-function throttle(func, wait) {
-  let context, args, result;
-  let timeout = null;
-  let previous = 0;
+function throttle(func: () => void, wait: number) {
+  let _this: Document;
+  let _arguments: IArguments;
+  let timeout: number | null;
+  let previous: number;
   let later = function () {
-    previous = new Date;
+    previous = new Date().getTime();
     timeout = null;
-    result = func.apply(context, args);
+    func.apply(_this, _arguments);
   };
-  return function () {
-    let now = new Date;
-    if (!previous) previous = now;
-    let remaining = wait - (now - previous);
-    context = this;
-    args = arguments;
-    if (remaining <= 0) {
-      clearTimeout(timeout);
-      timeout = null;
-      previous = now;
-      result = func.apply(context, args);
-    } else if (!timeout) {
-      timeout = setTimeout(later, remaining);
-    }
-    return result;
+  return function (this: Document) {
+    _this = this;
+    _arguments = arguments;
+    let now: number = new Date().getTime();
+    if (!previous) { previous = now; }
+    let remaining = wait - (now - previous); // não tem problema ser negativo
+    if (!timeout) { timeout = setTimeout(later, remaining); }
   };
 }
 

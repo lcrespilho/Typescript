@@ -62,7 +62,7 @@ function addEvent(target: EventTarget, evt: string, fn: EventListener): void {
         passive: true
       }); // chrome 51+
     } catch (e) {
-      console.error('addEventListener error. Don\'t worry... falling back to basic version of addEventListener. Error message:', e);
+      console.info('addEventListener info: falling back to basic version of addEventListener. Info message:', e);
       target.addEventListener(evt, fn);
     }
   } else if (target.attachEvent) {
@@ -77,4 +77,3 @@ function addEvent(target: EventTarget, evt: string, fn: EventListener): void {
     };
   }
 }
-
