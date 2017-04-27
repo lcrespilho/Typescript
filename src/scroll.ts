@@ -6,16 +6,7 @@ namespace Scroll {
   export interface Cache {
     [key: string]: boolean;
   }
-  export interface Config {
-    /**
-     * undefined if you just use the default dataLayer variable, otherwise enter it here
-     */
-    dataLayerName: string;
-    /**
-     * configure percentages of page you'd like to see if users scroll past
-     */
-    percentages: number[];
-  }
+
   export interface EventlistenerOptions {
     /**
      * Indicates that events of this type will be dispatched to the registered
@@ -85,12 +76,9 @@ declare let dataLayer: any[];
  * @param percent Distância de scroll atingida no momento.
  */
 function fireAnalyticsEvent(percent: string) {
-  console.log('Atingiu ' + percent);
   dataLayer.push({
     event: 'scrollTracking',
-    attributes: {
-      distance: percent
-    }
+    scrollDistance: percent
   });
 }
 
@@ -98,10 +86,7 @@ function isCSS1Compat(): boolean {
   return document.compatMode === 'CSS1Compat';
 }
 
-/**
- * Posição do 'bottom' (variável) da página em relação ao 'top' (fixo).
- */
-function currentPosition(): number {
+function scrollPlusYOffset(): number {
   let currScrollTop = window.pageYOffset || (isCSS1Compat()) ?
     document.documentElement.scrollTop :
     document.body.scrollTop;
@@ -119,23 +104,18 @@ function viewportHeight(): number {
 }
 
 /**
- * Altura do viewport menos 5 unidades
+ * Altura do documento
  */
 function docHeight(): number {
   let body = document.body;
   let html = document.documentElement;
   let height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-  return height - 5;
+  return height;
 }
 
 function isElementNode(n: any): n is Element {
   return n instanceof Element && n.nodeType === Node.ELEMENT_NODE;
 }
-
-let config: Scroll.Config = {
-  dataLayerName: 'dataLayer',
-  percentages: [25, 50, 75, 100]
-};
 
 /**
  * Limita a frequência de execução de "func", executando-a
@@ -163,13 +143,13 @@ function throttle(func: () => void, wait: number) {
   };
 }
 
-(function (document: Document, window: EventTarget, config: Scroll.Config): void {
+(function (document: Document, window: EventTarget, percentages: number[]): void {
   // dependências de navegador
   if (!document.querySelector || !document.body.getBoundingClientRect) {
-    // google_tag_manager[{{Container ID}}].onHtmlFailure({{HTML ID}}); // TODO: ativar essa linha
+    // google_tag_manager[{{Container ID}}].onHtmlFailure({{HTML ID}}); // TODO: ativar essa linha em produção
     throw new Error('browser não suporta scroll capturing...');
   }
-  let dataLayer = window[config.dataLayerName] || (window[config.dataLayerName] = []);
+
   /**
    * cache de captura para não enviar 2x uma mesma porcentagem
    */
@@ -181,8 +161,8 @@ function throttle(func: () => void, wait: number) {
    */
   function getMarks(_docHeight: number): Scroll.Mark {
     let marks: Scroll.Mark = {};
-    for (let i = 0; i < config.percentages.length; i++) {
-      let point = config.percentages[i];
+    for (let i = 0; i < percentages.length; i++) {
+      let point = percentages[i];
       let height = _docHeight * (point / 100);
       let mark = point + '%';
       if (height <= _docHeight) {
@@ -193,20 +173,31 @@ function throttle(func: () => void, wait: number) {
   }
 
   /**
-   * TODO: entender/corrigir/checar
+   * Função principal
    */
-  function checkDepth() {
-    let height = docHeight();
-    let marks = getMarks(height);
-    let _curr = currentPosition();
+  function main() {
+    let marks = getMarks(docHeight() - 5); // subtrai 5 por tolerância
+    let curr = scrollPlusYOffset();
     for (let percent in marks) {
-      if (_curr > marks[percent] && !cache[percent]) {
+      if (curr > marks[percent] && !cache[percent]) {
         cache[percent] = true;
         fireAnalyticsEvent(percent);
       }
     }
   }
-  // checkDepth(); // talvez deletar essa linha depois
 
-  addEvent(window, 'scroll', throttle(checkDepth, 500));
-})(document, window, config);
+  if (docHeight() - scrollPlusYOffset() <= 5) { // usando monitor 4K, por exemplo
+    main();
+  } else {
+    addEvent(window, 'scroll', throttle(main, 500)); // injeta listener
+  }
+  // google_tag_manager[{{Container ID}}].onHtmlSuccess({{HTML ID}}); // TODO: ativar essa linha em produção
+})(document, window, [25, 50, 75, 100]);
+
+/**
+ * TODO
+ * - procurar pela string 'TODO' no código e ver o que deve ser feito em cada caso
+ * - no GTM, transformar o código todo numa iife e usar try..catch
+ * - no GTM, configurar a tag para disparar no DOM Ready! Ao executar a tag deve saber
+ * o tamanho vertical do documento.
+ */
