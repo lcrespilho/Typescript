@@ -5,7 +5,8 @@
   "tasks": [{
     "isBuildCommand": true,
     "taskName": "tsc",
-    "command": "node_modules/.bin/tsc",
+    "command": "tsc",
+    "args": ["--sourceMap", "--removeComments", "${file}"],
     "isShellCommand": true,
     "showOutput": "always",
     "echoCommand": true,

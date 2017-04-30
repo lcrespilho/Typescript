@@ -7,6 +7,11 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
-    "watch": true
-  }
+    "watch": true,
+    "outDir": "build",
+    "outFile": "build/scroll.js"
+  },
+  "include": [
+    "src/**/*"
+  ]
 }
