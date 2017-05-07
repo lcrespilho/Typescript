@@ -6,7 +6,7 @@
     "isBuildCommand": true,
     "taskName": "tsc",
     "command": "tsc",
-    "args": ["--sourceMap", "--removeComments", "${file}"],
+    "args": ["--sourceMap", "-w", "${file}"],
     "isShellCommand": true,
     "showOutput": "always",
     "echoCommand": true,
