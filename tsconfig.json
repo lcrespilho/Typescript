@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "system",
+    "target": "es3",
+    "module": "commonjs",
     "sourceMap": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
-    "watch": true
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }
