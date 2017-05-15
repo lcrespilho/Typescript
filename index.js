@@ -70,157 +70,110 @@
 /* 0 */
 /***/ (function(module, exports) {
 
-/**
- * Cross-browser compliant event listener.
- * @param target Elemento alvo. É onde o listener de evento será inserido.
- * @param evt Evento para o qual o listener será adicionado.
- * @param fn Função handler/listener que será executada na ocorrência do evento.
- */
-function addEvent(target, evt, fn) {
-    if (target.addEventListener) {
-        try {
-            target.addEventListener(evt, fn, {
-                passive: true
-            }); // chrome 51+
+var LibCookie;
+(function (LibCookie) {
+    function libCookie() {
+        /**
+         * Retorna o valor do cookie, ou null caso ele não exista.
+         * @param {string} key Chave do cookie.
+         */
+        function getItem(key) {
+            if (!key) {
+                return null;
+            }
+            return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[.+*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
         }
-        catch (e) {
-            console.info('addEventListener info: falling back to basic version of addEventListener. Info message:', e);
-            target.addEventListener(evt, fn);
+        /**
+         * Cria ou atualiza um cookie.
+         * @param {string} key Chave do cookie.
+         * @param {string} value Valor do cookie.
+         * @param {(number|string|Date)} [end] Tempo de duração do cookie. Pode ser um número em ms, uma string vinda de Date.toUTCString(), um objeto Date, ou 'undefined' (para cookie de sessão).
+         * @param {string} [path] Path do cookie. 'undefined' implica subcaminho atual da URL.
+         * @param {string} [domain] Domain do cookie. 'undefined' implica hostname completo, incluindo www se exisitr.
+         * @param {boolean} [secure] Only transmit cookie over https.
+         */
+        function setItem(key, value, end, path, domain, secure) {
+            if (path === void 0) { path = ''; }
+            if (domain === void 0) { domain = ''; }
+            if (secure === void 0) { secure = false; }
+            if (!key || /^(?:expires|max-age|path|domain|secure)$|=/i.test(key) || /\=/.test(value)) {
+                return false;
+            }
+            var expires = "";
+            if (end) {
+                switch (end.constructor) {
+                    case Number:
+                        expires = end === Infinity ? "; expires=Fri, 31 Dec 9999 23:59:59 GMT" : "; expires=" + new Date(new Date().getTime() + end).toUTCString();
+                        break;
+                    case String:
+                        expires = "; expires=" + end;
+                        break;
+                    case Date:
+                        expires = "; expires=" + end.toUTCString();
+                        break;
+                }
+            }
+            document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(value) + expires + "; domain=" + domain + "; path=" + path + (secure ? "; secure" : "");
+            return hasItem(key);
         }
-    }
-    else if (target.attachEvent) {
-        target.attachEvent('on' + evt, function (evt_) {
-            // 'call' the event to ensure uniform 'this' handling
-            fn.call(target, evt_);
-        });
-    }
-    else if (!target['on' + evt]) {
-        target['on' + evt] = function handler(evt_) {
-            // 'call' the event to ensure uniform 'this' handling
-            fn.call(target, evt_);
+        /**
+         * Remove o cookie especificado por key/path/domain. Na remoção, o browser só remove se o path estiver perfeitamente igual ao do cookie.
+         * @param {string} key Chave do cookie.
+         * @param {string} [path] Path do cookie. Se undefined ou '', tenta remover do subcaminho atual da URL.
+         * @param {string} [domain] Domain do cookie. Se não especificado, assume o hostname da página.
+         */
+        function removeItem(key, path, domain) {
+            if (path === void 0) { path = ''; }
+            if (domain === void 0) { domain = ''; }
+            if (!this.hasItem(key)) {
+                return false;
+            }
+            document.cookie = encodeURIComponent(key) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + "; domain=" + domain + "; path=" + path;
+            return hasItem(key);
+        }
+        /**
+         * Retorna true se o cookie indicado por 'key' estiver presente.
+         * @param {string} key Chave do cookie.
+         */
+        function hasItem(key) {
+            if (!key) {
+                return false;
+            }
+            return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(key).replace(/[.+*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+        }
+        /**
+         * Retorna un array contendo as chaves de todos os cookies acessíveis.
+         */
+        function keys() {
+            var _keys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+            for (var i = 0, len = _keys.length; i < len; i++) {
+                _keys[i] = decodeURIComponent(_keys[i]);
+            }
+            return _keys;
+        }
+        /**
+         * Retorna 'true' se o browser permitir cookies, 'false' caso contrário.
+         */
+        function hasCookieEnabled() {
+            this.setItem('RaccoonTestCookie', 'RaccoonTestCookie', 2000);
+            return this.getItem('RaccoonTestCookie') === 'RaccoonTestCookie';
+        }
+        return {
+            getItem: getItem,
+            setItem: setItem,
+            removeItem: removeItem,
+            hasItem: hasItem,
+            keys: keys,
+            hasCookieEnabled: hasCookieEnabled
         };
     }
-}
-/**
- * Dá o push de dataLayer com a distância de scroll
- * @param percent Distância de scroll atingida no momento.
- */
-function fireAnalyticsEvent(percent) {
-    window.dataLayer.push({
-        event: 'scrollTracking',
-        scrollDistance: percent
-    });
-}
-function isCSS1Compat() {
-    return document.compatMode === 'CSS1Compat';
-}
-function scrollPlusYOffset() {
-    var currScrollTop = window.pageYOffset || (isCSS1Compat()) ?
-        document.documentElement.scrollTop :
-        document.body.scrollTop;
-    return currScrollTop + viewportHeight();
-}
-/**
- * Altura do viewport
- */
-function viewportHeight() {
-    var elem = isCSS1Compat() ?
-        document.documentElement :
-        document.body;
-    return elem.clientHeight;
-}
-/**
- * Altura do documento
- */
-function docHeight() {
-    var body = document.body;
-    var html = document.documentElement;
-    var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-    return height;
-}
-function isElementNode(n) {
-    return n instanceof Element && n.nodeType === Node.ELEMENT_NODE;
-}
-/**
- * Limita a frequência de execução de "func", executando-a
- * em intervalos de "wait" segundos.
- * @param func Função a ser executada
- * @param wait período de execução de func
- */
-function throttle(func, wait) {
-    var _this;
-    var _arguments;
-    var timeout;
-    var previous;
-    var later = function () {
-        previous = new Date().getTime();
-        timeout = null;
-        func.apply(_this, _arguments);
-    };
-    return function () {
-        _this = this;
-        _arguments = arguments;
-        var now = new Date().getTime();
-        if (!previous) {
-            previous = now;
-        }
-        var remaining = wait - (now - previous); // não tem problema ser negativo
-        if (!timeout) {
-            timeout = setTimeout(later, remaining);
-        }
-    };
-}
-(function (document, window, percentages) {
-    // dependências de navegador
-    if (!document.querySelector || !document.body.getBoundingClientRect) {
-        throw new Error('browser não suporta scroll capturing...');
-    }
-    /**
-     * cache de captura para não enviar 2x uma mesma porcentagem
-     */
-    var cache = {};
-    /**
-     * Retorna um objeto onde as chaves são as porcentagens e os valores correspondentes são píxeis.
-     * @param _docHeight Altura do documento
-     */
-    function getMarks(_docHeight) {
-        var marks = {};
-        for (var i = 0; i < percentages.length; i++) {
-            var point = percentages[i];
-            var height = _docHeight * (point / 100);
-            var mark = point + '%';
-            if (height <= _docHeight) {
-                marks[mark] = height;
-            }
-        }
-        return marks;
-    }
-    /**
-     * Função principal
-     */
-    function main() {
-        var marks = getMarks(docHeight() - 5); // subtrai 5 por tolerância
-        var curr = scrollPlusYOffset();
-        for (var percent in marks) {
-            if (curr > marks[percent] && !cache[percent]) {
-                cache[percent] = true;
-                fireAnalyticsEvent(percent);
-            }
-        }
-    }
-    if (docHeight() - scrollPlusYOffset() <= 5) {
-        main();
-    }
-    else {
-        addEvent(window, 'scroll', throttle(main, 500)); // injeta listener
-    }
-})(document, window, [25, 50, 75, 100]);
+    // let Cookie = libCookie();
+    // Cookie.setItem('chave1', 'valor1');
+    // console.log(Cookie.getItem('chave1'));
+})(LibCookie || (LibCookie = {}));
 /**
  * TODO
- * - procurar pela string 'TODO' no código e ver o que deve ser feito em cada caso
- * - no GTM, transformar o código todo numa iife e usar try..catch
- * - no GTM, configurar a tag para disparar no DOM Ready! Ao executar, a tag deve saber
- * o tamanho vertical do documento.
+ * No GTM, apenas remover o nome da função libCookie.
  */
 
 
