@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-  entry: './libCookie/libCookie.ts', // <-- modificar aqui
+  entry: './teste.ts', // <-- modificar aqui
   watch: true,
   devtool: 'source-map',
   resolve: {
