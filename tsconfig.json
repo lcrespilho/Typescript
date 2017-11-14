@@ -1,15 +1,21 @@
 {
+  "include": [
+    "indexedDB/*"
+  ],
   "compilerOptions": {
-    "removeComments": false,
-    "allowJs": true,
-    "target": "es3",
-    "module": "es6",
+    "removeComments": true,
+    "declaration": true,
+    "allowJs": false,
+    "target": "esnext",
+    "module": "esnext",
+    // "inlineSourceMap": true,
     "sourceMap": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "watch": true
   }
 }

@@ -18,11 +18,9 @@
   "homepage": "https://github.com/lcrespilho/Typescript#readme",
   "devDependencies": {
     "@types/google.analytics": "0.0.33",
-    "@types/jquery": "^2.0.43",
+    "@types/jquery": "^2.0.48",
     "@types/youtube": "0.0.29",
-    "ts-loader": "^2.0.3",
-    "typescript": "^2.3.2",
-    "webpack": "^2.5.1"
+    "typescript": "^2.5.1"
   },
   "dependencies": {
     "jquery": "3.2.1"
